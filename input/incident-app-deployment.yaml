@@ -1,0 +1,52 @@
+incident:
+  number: "INC0083107"
+  title: "Bad Deployment — v4.2.0 Release Causes 503 Cascade Across Core API Services"
+  severity: "1 - Critical"
+  priority: "1 - Critical"
+  state: "In Progress"
+  category: "Application"
+  subcategory: "Deployment Failure"
+  affected_service: "Core Platform API — Orders, Inventory, and User Services"
+  affected_ci: "api-platform-prod-cluster"
+  environment: "Production"
+  region: "us-east-1"
+  business_impact: >
+    Three core API services (Orders, Inventory, User) returning 503 Service Unavailable.
+    Mobile and web front-ends are completely non-functional for all logged-in users.
+    Order placement, inventory lookups, and account management are down. ~28,000 active
+    sessions affected. Revenue impact $35K/minute. Partner integrations via public API
+    also failing — SLA breach for 12 enterprise partners within 20 minutes.
+  opened_at: "2026-02-26T16:42:00Z"
+  detected_at: "2026-02-26T16:40:11Z"
+  assigned_to: "Platform Engineering"
+  assignment_group: "Platform Engineering — Release Team"
+  caller_id: "Datadog Synthetic Monitor (API Health Check — FAILED)"
+  short_description: >
+    v4.2.0 deployment completed at 16:35 UTC. Error rate across Orders, Inventory, and
+    User services spiked from <0.1% to 98.7% within 5 minutes. All three pods are in
+    CrashLoopBackOff on EKS cluster api-platform-prod-cluster.
+  description: |
+    Release v4.2.0 was deployed to production at 16:35 UTC via CI/CD pipeline (Jenkins
+    job #8834 — "platform-release-v4.2.0"). The deployment used a rolling update strategy
+    across all three API service deployments in the "platform" namespace on EKS cluster
+    api-platform-prod-cluster (us-east-1).
+
+    Observed at 16:40:11 UTC by Datadog synthetic monitor "API Health — /health endpoint":
+    - Orders Service: HTTP 503, 0 healthy pods (8/8 in CrashLoopBackOff)
+    - Inventory Service: HTTP 503, 0 healthy pods (6/6 in CrashLoopBackOff)
+    - User Service: HTTP 503, 0 healthy pods (6/6 in CrashLoopBackOff)
+
+    Pod logs show on startup:
+      "ERROR: Failed to connect to config-service: connection refused — getaddrinfo ENOTFOUND config-service.platform.svc.cluster.local"
+
+    The v4.2.0 release notes include: "Migrated config loading from environment variables
+    to config-service gRPC client (new dependency)". Config-service was not deployed
+    as part of this release and does not exist in the platform namespace.
+
+    APM trace shows 100% of requests failing at service initialisation — no traffic is
+    reaching business logic. The previous version was v4.1.8. A Helm rollback to
+    v4.1.8 chart has NOT been attempted yet.
+
+    Feature flag service is unreachable (depends on User Service) — unable to use
+    flag-based rollback. GitOps ArgoCD app is out-of-sync.
+  change_related: true

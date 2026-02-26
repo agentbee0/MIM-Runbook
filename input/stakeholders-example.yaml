@@ -1,0 +1,95 @@
+stakeholders:
+  - name: "Sarah Mitchell"
+    role: "Incident Commander"
+    title: "Director of Site Reliability Engineering"
+    team: "SRE"
+    email: "s.mitchell@company.com"
+    phone: "+1-555-0201"
+    slack: "@sarah.mitchell"
+    escalation_level: 1
+    notify_immediately: true
+    bridge_url: "https://company.zoom.us/j/98765432101?pwd=IncidentBridge2026"
+    bridge_phone: "+1-929-205-6099 PIN: 123456#"
+
+  - name: "David Park"
+    role: "Technical Lead"
+    title: "Principal Database Engineer"
+    team: "Database Operations"
+    email: "d.park@company.com"
+    phone: "+1-555-0202"
+    slack: "@david.park"
+    escalation_level: 1
+    notify_immediately: true
+
+  - name: "Jennifer Walsh"
+    role: "Communications Lead"
+    title: "Senior Engineering Manager"
+    team: "Engineering Leadership"
+    email: "j.walsh@company.com"
+    phone: "+1-555-0203"
+    slack: "@jennifer.walsh"
+    escalation_level: 1
+    notify_immediately: true
+
+  - name: "Marcus Thompson"
+    role: "On-Call Engineer"
+    title: "Senior SRE"
+    team: "SRE"
+    email: "m.thompson@company.com"
+    phone: "+1-555-0206"
+    slack: "@marcus.thompson"
+    escalation_level: 1
+    notify_immediately: true
+
+  - name: "Robert Chen"
+    role: "Customer Impact Lead"
+    title: "VP Customer Success"
+    team: "Customer Success"
+    email: "r.chen@company.com"
+    phone: "+1-555-0204"
+    slack: "@robert.chen"
+    escalation_level: 2
+    notify_immediately: false
+
+  - name: "Priya Sharma"
+    role: "Product Lead"
+    title: "VP Product Management"
+    team: "Product"
+    email: "p.sharma@company.com"
+    phone: "+1-555-0207"
+    slack: "@priya.sharma"
+    escalation_level: 2
+    notify_immediately: false
+
+  - name: "Angela Torres"
+    role: "Executive Sponsor"
+    title: "Chief Technology Officer"
+    team: "Executive"
+    email: "a.torres@company.com"
+    phone: "+1-555-0205"
+    slack: "@angela.torres"
+    escalation_level: 3
+    notify_immediately: false
+
+  - name: "James Okafor"
+    role: "Executive Sponsor"
+    title: "Chief Revenue Officer"
+    team: "Executive"
+    email: "j.okafor@company.com"
+    phone: "+1-555-0208"
+    slack: "@james.okafor"
+    escalation_level: 3
+    notify_immediately: false
+
+vendor_escalations:
+  - vendor: "Oracle Support"
+    account_number: "ORA-87654321"
+    support_url: "https://support.oracle.com"
+    phone: "+1-800-223-1711"
+    severity_mapping: "SEV1 - Production Down"
+
+  - vendor: "AWS Support"
+    account_number: "AWS-987654321"
+    support_url: "https://console.aws.amazon.com/support/home"
+    phone: "+1-888-280-4331"
+    severity_mapping: "P1 - Production System Down"

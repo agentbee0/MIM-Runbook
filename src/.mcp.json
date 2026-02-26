@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "runbook-generator": {
+      "command": "npx",
+      "args": ["tsx", "servers/runbook-generator/src/index.ts"]
+    }
+  }
+}

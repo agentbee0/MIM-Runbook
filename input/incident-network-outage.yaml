@@ -1,0 +1,46 @@
+incident:
+  number: "INC0091245"
+  title: "Multi-Region Network Outage — BGP Route Withdrawal Causing Global Connectivity Loss"
+  severity: "1 - Critical"
+  priority: "1 - Critical"
+  state: "In Progress"
+  category: "Network"
+  subcategory: "BGP / Routing"
+  affected_service: "Global Application Network — All Customer-Facing Traffic"
+  affected_ci: "core-router-edge-01"
+  environment: "Production"
+  region: "global (us-east-1, eu-west-1, ap-southeast-1)"
+  business_impact: >
+    All inbound customer traffic to production services is failing. 100% packet loss from
+    external clients to all three production regions. Estimated 45,000 active sessions
+    dropped. Revenue impact ~$120K/minute. B2B SLA breach imminent for Tier-1 enterprise
+    customers. Brand and regulatory exposure if outage exceeds 30 minutes.
+  opened_at: "2026-02-26T09:14:00Z"
+  detected_at: "2026-02-26T09:12:37Z"
+  assigned_to: "Network Operations"
+  assignment_group: "NOC — Tier 3 Network Engineering"
+  caller_id: "PagerDuty Auto-Alert (BGP peer down — 3 simultaneous peers)"
+  short_description: >
+    BGP sessions dropped on core-router-edge-01 at 09:12 UTC. All three upstream transit
+    providers (Cogent, Zayo, Lumen) withdrew routes simultaneously. Customer-facing
+    services globally unreachable.
+  description: |
+    At 09:12:37 UTC PagerDuty fired a P1 alert: "BGP peer down — 3 peers on core-router-edge-01".
+    Within 90 seconds all three transit BGP sessions (AS174 Cogent, AS6461 Zayo, AS3356 Lumen)
+    dropped. The autonomous system (AS64512) lost all upstream route advertisements.
+
+    Symptoms observed:
+    - 100% external packet loss to all production VIPs (load balancers, CDN origins)
+    - Internal east-west traffic between services is unaffected
+    - No hardware or interface errors on core-router-edge-01
+    - BGP daemon (FRRouTing 9.1) shows all peers in IDLE state
+    - syslog on core-router-edge-01 shows: "NOTIFICATION received from peer AS174: HOLD TIMER EXPIRED"
+    - Change freeze window is NOT active; a BGP community configuration change was pushed
+      by network-eng at 09:05 UTC (7 minutes before the outage) — change ticket CHG0034891
+
+    Possible cause: misconfigured BGP route-map applying a REJECT ALL policy to outbound
+    advertisements or modifying MED/LOCAL_PREF values that triggered peer resets.
+
+    No DDoS signature detected. CDN edge nodes (Cloudflare) show normal traffic in their
+    scrubbing centres — issue is origin-side.
+  change_related: true

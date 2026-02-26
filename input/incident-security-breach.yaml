@@ -1,0 +1,64 @@
+incident:
+  number: "INC0095881"
+  title: "Credential Stuffing Attack — Mass Account Takeover Attempt with Anomalous Auth Spikes"
+  severity: "1 - Critical"
+  priority: "1 - Critical"
+  state: "In Progress"
+  category: "Security"
+  subcategory: "Account Takeover / Credential Stuffing"
+  affected_service: "Authentication Service — Customer Login and Session Management"
+  affected_ci: "auth-service-prod"
+  environment: "Production"
+  region: "us-east-1, eu-west-1"
+  business_impact: >
+    Automated credential stuffing attack targeting the /auth/login endpoint. 3.2 million
+    login attempts in the past 45 minutes from ~180,000 distinct IPs (botnet). Confirmed
+    successful account compromises: 1,847 customer accounts. Attacker activity post-login
+    includes PII lookups (name, address, last 4 of payment card) and initiation of password
+    reset flows. Data protection regulatory notification obligations may apply within 72
+    hours (GDPR Art. 33, CCPA). Legitimate user logins are also degraded — auth service
+    p99 latency at 8,400ms (normal: 180ms). Customer trust and regulatory exposure are
+    the primary risks.
+  opened_at: "2026-02-26T03:18:00Z"
+  detected_at: "2026-02-26T03:15:22Z"
+  assigned_to: "Security Operations Center"
+  assignment_group: "SOC — Incident Response Team"
+  caller_id: "SIEM Auto-Alert: Splunk — Auth Failure Rate > 500% Baseline (Rule: CRED_STUFFING_01)"
+  short_description: >
+    Large-scale credential stuffing attack on /auth/login detected at 03:15 UTC.
+    Auth failure rate 500% above baseline. 1,847 accounts confirmed compromised.
+    PII accessed post-login. Botnet sourced from ~180K IPs — WAF rate limiting
+    partially applied but insufficient.
+  description: |
+    At 03:15:22 UTC Splunk SIEM rule CRED_STUFFING_01 fired: "Authentication failure rate
+    exceeds 500% of 7-day rolling baseline for >5 consecutive minutes".
+
+    Attack profile (data from WAF + auth-service logs):
+    - Attack start: ~02:28 UTC (pre-alert ramp-up phase)
+    - Peak rate: 71,000 login attempts/minute at 03:10 UTC
+    - Source IPs: 179,843 unique IPs across 94 countries (residential proxies + VPS clusters)
+    - User-Agent rotation detected: cycling through 400+ browser user-agents
+    - Credential list: combolist format (email:password) — likely sourced from prior
+      breach data (HaveIBeenPwned exposure matches patterns)
+    - Attack vectors: /auth/login (REST), /oauth/token (OAuth password grant)
+
+    Account compromise analysis (auth-service audit log + downstream access):
+    - 1,847 successful logins from attacker IPs confirmed via IP reputation API
+    - Post-login activity: GET /api/v2/user/profile (PII: name, email, phone, address)
+    - 214 accounts: GET /api/v2/payment/cards (masked card data — last 4 + expiry)
+    - 63 accounts: password reset initiated from attacker session
+    - 0 accounts: payment transaction completed (checkout service requires 3DS — held)
+
+    Current mitigations applied (partial):
+    - Cloudflare WAF: rate limit rule added at 03:19 UTC — 100 req/min per IP, 60s ban
+    - CAPTCHA challenge added to /auth/login for IPs with >5 failures in 60s
+    - WAF rule has NOT blocked /oauth/token — attack pivoted to OAuth endpoint at 03:22 UTC
+
+    Auth service impact on legitimate users:
+    - p99 login latency: 8,400ms (SLA: <500ms)
+    - Login success rate for legitimate users: 61% (normal: 99.7%)
+
+    Compromised accounts have NOT been force-logged-out or locked yet — pending IC decision.
+    DLP alerts: no evidence of bulk data exfiltration to external endpoints. Cloudflare
+    Firewall Analytics shows attack traffic is predominantly TCP/443.
+  change_related: false

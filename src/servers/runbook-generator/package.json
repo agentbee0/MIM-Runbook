@@ -1,0 +1,24 @@
+{
+  "name": "mim-runbook-generator",
+  "version": "1.0.0",
+  "description": "MCP server for generating Major Incident Management runbooks as .md, .docx, and .xlsx from incident YAML",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "docx": "^9.6.0",
+    "exceljs": "^4.4.0",
+    "js-yaml": "^4.1.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}

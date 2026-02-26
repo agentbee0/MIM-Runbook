@@ -1,0 +1,59 @@
+incident:
+  number: "INC0087563"
+  title: "AWS us-east-1a AZ Failure — Autoscaling Misconfiguration Prevents Cross-AZ Failover"
+  severity: "1 - Critical"
+  priority: "1 - Critical"
+  state: "In Progress"
+  category: "Cloud/Infra"
+  subcategory: "Availability Zone Failure"
+  affected_service: "Production EKS Cluster + RDS Multi-AZ + ElastiCache — All Workloads"
+  affected_ci: "eks-prod-cluster-us-east-1"
+  environment: "Production"
+  region: "us-east-1 (AZ: us-east-1a degraded)"
+  business_impact: >
+    AWS is reporting degraded EC2 and EBS in us-east-1a. 60% of our production EKS worker
+    nodes are in us-east-1a and are unreachable. Kubernetes pods running on these nodes are
+    stuck in Terminating state with no rescheduling due to misconfigured PodDisruptionBudgets
+    and node affinity rules. Approximately 19,000 users experiencing service degradation or
+    complete unavailability. RDS primary is in us-east-1a — Multi-AZ failover to us-east-1b
+    has NOT yet completed (stuck in failover for 12 minutes). Revenue impact ~$60K/minute.
+  opened_at: "2026-02-26T11:05:00Z"
+  detected_at: "2026-02-26T11:01:49Z"
+  assigned_to: "Infrastructure & Cloud Operations"
+  assignment_group: "Cloud Platform Engineering"
+  caller_id: "AWS Health Dashboard Alert + Datadog Node Down Alert (18 nodes simultaneously)"
+  short_description: >
+    AWS us-east-1a partial failure at 11:01 UTC. 18 EKS worker nodes unreachable.
+    PodDisruptionBudgets blocking pod rescheduling to us-east-1b/1c. RDS Multi-AZ failover
+    stuck. ElastiCache primary node unreachable — replica promotion pending.
+  description: |
+    At 11:01:49 UTC AWS Health Dashboard reported: "EC2 Instance Impaired — us-east-1a —
+    Hardware issue affecting a subset of EC2 instances". Simultaneously Datadog fired 18
+    node-down alerts for the eks-prod-cluster-us-east-1 worker nodes in us-east-1a.
+
+    Cluster state (kubectl get nodes):
+    - 18 nodes in us-east-1a: STATUS=NotReady, ROLES=worker
+    - 12 nodes in us-east-1b: Ready
+    - 10 nodes in us-east-1c: Ready
+    - 340 pods stuck in Terminating across namespaces: platform, payments, analytics, ml-serving
+
+    Root cause of stuck rescheduling identified:
+    1. PodDisruptionBudgets set to maxUnavailable=0 for all Deployments (blanket policy
+       applied during PCI-DSS compliance review 3 weeks ago — never validated for AZ failure)
+    2. Node affinity rules using requiredDuringSchedulingIgnoredDuringExecution with
+       topology.kubernetes.io/zone: us-east-1a for stateful workloads (Kafka consumers,
+       ML serving)
+    3. StorageClass using gp2 (AZ-locked EBS) — PVCs cannot be recreated in another AZ
+
+    RDS status:
+    - Primary: db-prod-postgres-01 in us-east-1a — Multi-AZ failover initiated 11:03 UTC
+    - Failover stuck at "Modifying" for 12 minutes — AWS support case opened (Case: 12456789)
+    - Read replicas in us-east-1b/1c are healthy
+
+    ElastiCache (Redis) cluster:
+    - Primary shard in us-east-1a unreachable
+    - Automatic failover enabled but replica promotion shows "election in progress" for 8 min
+    - Application is receiving "READONLY You can't write against a read only replica" errors
+
+    S3, SQS, and Lambda (all regional services) are unaffected.
+  change_related: false

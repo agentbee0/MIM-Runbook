@@ -1,0 +1,66 @@
+incident:
+  number: "INC0079934"
+  title: "Payment Processing Outage — Stripe Webhook Handler Deadlock Causes Checkout Failures"
+  severity: "1 - Critical"
+  priority: "1 - Critical"
+  state: "In Progress"
+  category: "Application"
+  subcategory: "Payment Processing / Webhook Deadlock"
+  affected_service: "Payment Service — Checkout, Subscription Billing, and Refund Processing"
+  affected_ci: "payment-service-prod"
+  environment: "Production"
+  region: "us-east-1"
+  business_impact: >
+    Payment processing is down for all checkout flows. No new orders can be completed.
+    Subscription renewal jobs are also failing — 4,200 subscription renewals queued but
+    not processed. Refund requests are stuck. Lost revenue estimated at $28K/minute.
+    34 enterprise customers on monthly invoicing are unable to complete bulk orders.
+    Stripe is NOT experiencing an outage — root cause is internal to the payment-service
+    webhook handler. Unprocessed webhooks are accumulating in the Stripe dashboard
+    (2,847 events queued). Risk of Stripe disabling webhook delivery if queue persists >1hr.
+  opened_at: "2026-02-26T13:55:00Z"
+  detected_at: "2026-02-26T13:52:41Z"
+  assigned_to: "Payments Engineering"
+  assignment_group: "Payments Engineering — Backend"
+  caller_id: "Datadog APM Alert — payment-service error rate 99.1% (threshold: 5%)"
+  short_description: >
+    payment-service deadlock in Stripe webhook handler introduced in v2.8.3 (deployed 13:30
+    UTC). All payment intents, subscription charges, and refunds failing with 500 Internal
+    Server Error. Webhook processing goroutines deadlocked on a distributed Redis lock.
+    2,847 Stripe webhook events queued and unacknowledged.
+  description: |
+    Datadog APM alert fired at 13:52:41 UTC: payment-service error rate rose from <0.1%
+    to 99.1% over 8 minutes following the deployment of v2.8.3 at 13:30 UTC.
+
+    Error pattern (payment-service logs, all pods):
+      "FATAL: webhook_handler.go:214 — deadlock detected: goroutine waiting on redis lock
+       'stripe:webhook:lock:{eventId}' held by goroutine in payment_intent_handler.go:89
+       which is waiting on stripe:webhook:lock:{eventId} — circular wait"
+
+    Root cause hypothesis:
+    PR #4451 (merged 2026-02-25): "Refactor webhook handler to use distributed Redis lock
+    for idempotency". The new implementation acquires a Redis lock at the start of webhook
+    processing AND calls the existing payment_intent_handler which also acquires the same
+    Redis lock key (introduced in v2.7.0 for deduplication). This creates a circular
+    dependency. The deadlock occurs on all webhooks containing payment_intent events.
+
+    Service health (all payment-service pods — 8 replicas):
+    - All 8 pods: CPU 100% (goroutines blocked on lock acquisition)
+    - All 8 pods: goroutine count 8,400+ (normal: ~200)
+    - Redis lock keys: 847 orphaned locks from crashed goroutines (TTL 30 minutes — not
+      expiring fast enough to self-heal)
+    - Stripe webhook queue: 2,847 unacknowledged events, Stripe retry interval escalating
+
+    Downstream failures:
+    - /api/v3/checkout/complete: 100% 500 errors
+    - /api/v3/subscriptions/renew: 100% 500 errors
+    - /api/v3/refunds: 100% 500 errors
+    - Checkout front-end: displaying "Payment unavailable — please try again" to all users
+
+    Stripe confirmed operational (status.stripe.com: all green). Issue is entirely
+    within payment-service. A rollback to v2.8.2 will resolve the deadlock.
+    Redis flush of orphaned lock keys may be required after rollback.
+
+    SQS dead-letter queue for failed payment events: 0 messages (DLQ not triggered —
+    failures are at the HTTP handler layer before SQS enqueue).
+  change_related: true

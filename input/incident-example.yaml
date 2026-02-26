@@ -1,0 +1,48 @@
+incident:
+  number: "INC0078342"
+  title: "Production Database Cluster Unresponsive — E-Commerce Checkout Failing"
+  severity: "1 - Critical"
+  priority: "1 - Critical"
+  state: "In Progress"
+  category: "Database"
+  subcategory: "Availability"
+  affected_service: "E-Commerce Customer Portal"
+  affected_ci: "prod-oracle-cluster-01"
+  environment: "Production"
+  region: "us-east-1"
+  business_impact: >
+    Complete customer checkout failure. All 3 Oracle RAC nodes unreachable.
+    Estimated 12,000+ active sessions unable to complete purchases.
+    Revenue impact approximately $45,000 per minute.
+    Payment processing service also affected.
+  opened_at: "2026-02-26T14:28:00Z"
+  detected_at: "2026-02-26T14:27:45Z"
+  assigned_to: "Database Operations Team"
+  assignment_group: "Tier 2 - Database Operations"
+  caller_id: "NOC Automation"
+  short_description: "CRIT: prod-oracle-cluster-01 unresponsive - all checkout services timing out"
+  description: |
+    AUTOMATED ALERT: Production Oracle RAC cluster prod-oracle-cluster-01 is unresponsive.
+
+    Symptoms observed:
+    - All 12 application nodes reporting DB connection timeout (ORA-12170)
+    - Checkout service success rate dropped to 0% at 14:27 UTC
+    - Payment processing service also impacted (ORA-12541: TNS no listener)
+    - Read replica prod-oracle-replica-01 appears partially responsive (SELECT queries only)
+    - Connection pool exhaustion detected on app tier (HikariCP pool maxed at 500 connections)
+
+    Monitoring alerts triggered (all at 14:27-14:28 UTC):
+    - Synthetic monitor: checkout-health-check CRITICAL
+    - APM: db_connection_pool_exhausted CRITICAL
+    - Infra: oracle_rac_node_unreachable x3 CRITICAL
+    - Infra: oracle_listener_down CRITICAL
+    - Business: checkout_success_rate_zero CRITICAL
+
+    Recent changes (last 4 hours):
+    - 13:45 UTC: Application release v2.4.1 deployed to prod by release-pipeline-bot
+      (changes included: checkout flow optimisation, new DB query for product availability)
+    - 12:30 UTC: DBA ran maintenance on prod-oracle-cluster-01 (index rebuild - completed successfully)
+  change_related: true
+  related_incident: ""
+  resolution_notes: ""
+  close_code: ""

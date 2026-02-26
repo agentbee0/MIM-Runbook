@@ -1,0 +1,179 @@
+stakeholders:
+  # -------------------------------------------------------
+  # Level 1 — Immediate Response (paged at T+0, in To: on all initial templates)
+  # -------------------------------------------------------
+
+  - name: "Daniel Ortega"
+    role: "Incident Commander"
+    title: "Director of Site Reliability Engineering"
+    team: "SRE"
+    email: "d.ortega@corp.example.com"
+    phone: "+1-415-555-0101"
+    slack: "@daniel.ortega"
+    escalation_level: 1
+    notify_immediately: true
+    bridge_url: "https://corp.zoom.us/j/82345678901?pwd=WarRoom2026!"
+    bridge_phone: "+1-669-900-6833 PIN: 987654#"
+
+  - name: "Fatima Al-Hassan"
+    role: "Technical Lead"
+    title: "Principal Software Engineer"
+    team: "Platform Engineering"
+    email: "f.alhassan@corp.example.com"
+    phone: "+1-415-555-0102"
+    slack: "@fatima.alhassan"
+    escalation_level: 1
+    notify_immediately: true
+
+  - name: "Carlos Mendez"
+    role: "Communications Lead"
+    title: "Senior Engineering Manager"
+    team: "Engineering Leadership"
+    email: "c.mendez@corp.example.com"
+    phone: "+1-415-555-0103"
+    slack: "@carlos.mendez"
+    escalation_level: 1
+    notify_immediately: true
+
+  - name: "Aisha Nwosu"
+    role: "On-Call Engineer"
+    title: "Senior Site Reliability Engineer"
+    team: "SRE"
+    email: "a.nwosu@corp.example.com"
+    phone: "+1-415-555-0104"
+    slack: "@aisha.nwosu"
+    escalation_level: 1
+    notify_immediately: true
+
+  - name: "Wei Zhang"
+    role: "On-Call Engineer"
+    title: "Senior DevOps Engineer"
+    team: "Infrastructure"
+    email: "w.zhang@corp.example.com"
+    phone: "+1-415-555-0105"
+    slack: "@wei.zhang"
+    escalation_level: 1
+    notify_immediately: true
+
+  - name: "NOC Bridge Coordinator"
+    role: "NOC Lead"
+    title: "Network Operations Center Lead"
+    team: "NOC"
+    email: "noc-oncall@corp.example.com"
+    phone: "+1-415-555-0199"
+    slack: "@noc-oncall"
+    escalation_level: 1
+    notify_immediately: true
+
+  # -------------------------------------------------------
+  # Level 2 — T+30 Escalation (CC on Templates 1-3, To: on Templates 4-6)
+  # -------------------------------------------------------
+
+  - name: "Sandra Kowalski"
+    role: "Customer Impact Lead"
+    title: "VP Customer Success"
+    team: "Customer Success"
+    email: "s.kowalski@corp.example.com"
+    phone: "+1-415-555-0201"
+    slack: "@sandra.kowalski"
+    escalation_level: 2
+    notify_immediately: false
+
+  - name: "Ravi Krishnamurthy"
+    role: "Product Lead"
+    title: "VP Product Management"
+    team: "Product"
+    email: "r.krishnamurthy@corp.example.com"
+    phone: "+1-415-555-0202"
+    slack: "@ravi.krishnamurthy"
+    escalation_level: 2
+    notify_immediately: false
+
+  - name: "Ingrid Larsson"
+    role: "Security Lead"
+    title: "Chief Information Security Officer"
+    team: "Security"
+    email: "i.larsson@corp.example.com"
+    phone: "+1-415-555-0203"
+    slack: "@ingrid.larsson"
+    escalation_level: 2
+    notify_immediately: false
+
+  - name: "Marcus Webb"
+    role: "Legal and Compliance Lead"
+    title: "General Counsel"
+    team: "Legal"
+    email: "m.webb@corp.example.com"
+    phone: "+1-415-555-0204"
+    slack: "@marcus.webb"
+    escalation_level: 2
+    notify_immediately: false
+
+  # -------------------------------------------------------
+  # Level 3 — T+60 Executive Escalation (CC only on Templates 3-6)
+  # -------------------------------------------------------
+
+  - name: "Eleanor Tran"
+    role: "Executive Sponsor"
+    title: "Chief Technology Officer"
+    team: "Executive"
+    email: "e.tran@corp.example.com"
+    phone: "+1-415-555-0301"
+    slack: "@eleanor.tran"
+    escalation_level: 3
+    notify_immediately: false
+
+  - name: "Bernard Osei"
+    role: "Executive Sponsor"
+    title: "Chief Revenue Officer"
+    team: "Executive"
+    email: "b.osei@corp.example.com"
+    phone: "+1-415-555-0302"
+    slack: "@bernard.osei"
+    escalation_level: 3
+    notify_immediately: false
+
+  - name: "Helena Vasquez"
+    role: "Executive Sponsor"
+    title: "Chief Executive Officer"
+    team: "Executive"
+    email: "h.vasquez@corp.example.com"
+    phone: "+1-415-555-0303"
+    slack: "@helena.vasquez"
+    escalation_level: 3
+    notify_immediately: false
+
+# -------------------------------------------------------
+# Vendor Escalations
+# -------------------------------------------------------
+
+vendor_escalations:
+  - vendor: "AWS Support"
+    account_number: "AWS-112233445566"
+    support_url: "https://console.aws.amazon.com/support/home"
+    phone: "+1-888-280-4331"
+    severity_mapping: "P1 - Production System Down"
+
+  - vendor: "Cloudflare Enterprise"
+    account_number: "CF-ENT-998877"
+    support_url: "https://dash.cloudflare.com/support"
+    phone: "+1-650-319-8930"
+    severity_mapping: "Business Critical"
+
+  - vendor: "Stripe Support"
+    account_number: "STR-acct-1A2B3C4D5E6F"
+    support_url: "https://support.stripe.com"
+    phone: "+1-888-963-8220"
+    severity_mapping: "P1 - Production Incident"
+
+  - vendor: "Oracle Support"
+    account_number: "ORA-77665544"
+    support_url: "https://support.oracle.com"
+    phone: "+1-800-223-1711"
+    severity_mapping: "SEV1 - Production Down"
+
+  - vendor: "PagerDuty Support"
+    account_number: "PD-ENT-CORP2026"
+    support_url: "https://support.pagerduty.com"
+    phone: "+1-415-990-9199"
+    severity_mapping: "Critical"
